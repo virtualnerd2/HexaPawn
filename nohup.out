@@ -600,3 +600,5 @@ Failed to read: session.screen0.titlebar.left
 Setting default value
 Failed to read: session.screen0.titlebar.right
 Setting default value
+XIO:  fatal IO error 11 (Resource temporarily unavailable) on X server ":0"
+      after 15769 requests (15769 known processed) with 1 events remaining.

@@ -81,7 +81,7 @@ def piecesGameBoard(gameBoard):
       drawPieces(gameBoard)
 
 def newGameBoard(gameBoard):
-    gameBoard[:] = [[1,1,1],[2,0,2],[2,2,2]]
+    gameBoard[:] = [[1,1,1],[0,0,0],[2,2,2]]
     drawPieces(gameBoard)
 
 def drawPieces(gameBoard):
@@ -96,19 +96,6 @@ def drawPieces(gameBoard):
             elif gameBoard[x][y]==3:
                 pygame.draw.circle(screen,yellow,(xCoordinate,yCoordinate),radius)
 
-def checkMove(column, row):
-  if(column == 2):
-    return "NOT VALID"
-
-  if(row + 1 < 3 and gameBoard[column+1][row+1] == "2"):
-    return "UP"
-  elif(gameBoard[column+1][row] == "0"):
-    return "RIGHT"
-  elif(row - 1 >= 0 and gameBoard[column+1][row-1] == "2"):
-    return "DOWN"
-  else:
-    return "NOT VALID"
-
 def renderImage():
   screen.fill(greyBackground)
   boardGui()
@@ -116,14 +103,76 @@ def renderImage():
   clock.tick(60)
   pygame.display.flip()
 
+def checkMove(column, row):
+  if(column >= 0 and row >= 0 and gameBoard[column-1][row-1] == 3 and gameBoard[column][row] == 2):
+    return "UP"
+  elif(column >= 0 and gameBoard[column-1][row] == 3 and gameBoard[column][row] == 0):
+    return "RIGHT"
+  elif(column >= 0 and row <= 2 and gameBoard[column-1][row+1] == 3 and gameBoard[column][row] == 2):
+    return "DOWN"
+  else:
+    return "NOT VALID"
+
+def checkWinPlayer():
+  if (1 in gameBoard[2]):
+    return True
+  
+  for x, y, z in gameBoard:
+    if(x == 2 or y == 2 or z == 2):
+      return False
+  return True
+
+def checkWinServer():
+  if (2 in gameBoard[0]):
+    return True
+  
+  for x, y, z in gameBoard:
+    if(x == 1 or y == 1 or z == 1):
+      return False
+  return True
+
+def figureOutMove(turn):
+  if(turn == 1):
+    for i in TwoStates:
+      print(i[0])
+      if i[0] == gameBoard:
+        return i
+  
+  if(turn == 2):
+    for i in FourStates:
+      if i[0] == gameBoard:
+        return i
+    
+  if(turn == 3):
+    for i in SixStates:
+      if i[0] == gameBoard:
+        return i
+
+def computerMove(turn):
+  move = figureOutMove(turn)
+  startingPoint = move[2]
+  endingPoint = move[3]
+
+  gameBoard[startingPoint[0]][startingPoint[1]] = 0
+  gameBoard[endingPoint[0]][endingPoint[1]] = 1
+  print(startingPoint, "------>", endingPoint)
+
 selected = 0
+turn = 0
 while not done:
+    if(turn != 0):
+      print("Computer turn. Thinkin....")
+      time.sleep(.5)
+
+      computerMove(turn)
+
+      if(checkWinServer()):
+        print("You Lost")
+
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
-
             pos = pygame.mouse.get_pos()
 
-            # Change the x/y screen coordinates to grid coordinates
             column = (pos[0]-xDistanceFromEdge) // (width+margin)
             row = pos[1] // (height+margin)
             if(column < len(gameBoard) and row < len(gameBoard[0])):
@@ -132,13 +181,14 @@ while not done:
             validMove = checkMove(column, row)
             print(validMove)
             print(gameBoard[column][row])
+
             if(selected == 0 and gameBoard[column][row] == 1):
               gameBoard[column][row] = 3
               selected = 1
+
             elif(selected == 1 and gameBoard[column][row] == 3):
               gameBoard[column][row] = 1
               selected = 0
-
 
             elif(selected == 1 and validMove != "NOT VALID"):
               selected = 0
@@ -152,7 +202,9 @@ while not done:
                 gameBoard[column-1][row+1] = 0
                 gameBoard[column][row] = 1
 
-
+              turn = turn + 1
+              if(checkWinPlayer()):
+                print("You Won")
           
 
         elif pygame.key.get_pressed()[pygame.K_r] == True:
