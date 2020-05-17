@@ -81,7 +81,7 @@ def piecesGameBoard(gameBoard):
       drawPieces(gameBoard)
 
 def newGameBoard(gameBoard):
-    gameBoard[:] = [[1,1,1],[0,0,0],[2,2,2]]
+    gameBoard[:] = [[1,1,1],[2,0,2],[2,2,2]]
     drawPieces(gameBoard)
 
 def drawPieces(gameBoard):
@@ -97,17 +97,15 @@ def drawPieces(gameBoard):
                 pygame.draw.circle(screen,yellow,(xCoordinate,yCoordinate),radius)
 
 def checkMove(column, row):
-  if(gameBoard[column][row] != "Empty"):
+  if(column == 2):
     return "NOT VALID"
-  
-  if(row - 2 >= 0 and gameBoard[column][row-2] == "Blue"):
+
+  if(row + 1 < 3 and gameBoard[column+1][row+1] == "2"):
     return "UP"
-  elif(row + 2 < len(gameBoard[column]) and gameBoard[column][row+2] == "Blue"):
-    return "DOWN"
-  elif(column+2 < len(gameBoard) and gameBoard[column+2][row] == "Blue"):
-    return "LEFT"
-  elif(column-2 >= 0 and gameBoard[column-2][row] == "Blue"):
+  elif(gameBoard[column+1][row] == "0"):
     return "RIGHT"
+  elif(row - 1 >= 0 and gameBoard[column+1][row-1] == "2"):
+    return "DOWN"
   else:
     return "NOT VALID"
 
@@ -129,7 +127,33 @@ while not done:
             column = (pos[0]-xDistanceFromEdge) // (width+margin)
             row = pos[1] // (height+margin)
             if(column < len(gameBoard) and row < len(gameBoard[0])):
-              print((column, row))
+              print((column, row)) 
+
+            validMove = checkMove(column, row)
+            print(validMove)
+            print(gameBoard[column][row])
+            if(selected == 0 and gameBoard[column][row] == 1):
+              gameBoard[column][row] = 3
+              selected = 1
+            elif(selected == 1 and gameBoard[column][row] == 3):
+              gameBoard[column][row] = 1
+              selected = 0
+
+
+            elif(selected == 1 and validMove != "NOT VALID"):
+              selected = 0
+              if (validMove == "UP"):
+                gameBoard[column-1][row-1] = 0
+                gameBoard[column][row] = 1
+              elif (validMove == "RIGHT"):
+                gameBoard[column-1][row] = 0
+                gameBoard[column][row] = 1
+              elif (validMove == "DOWN"):
+                gameBoard[column-1][row+1] = 0
+                gameBoard[column][row] = 1
+
+
+          
 
         elif pygame.key.get_pressed()[pygame.K_r] == True:
           newGame = True
